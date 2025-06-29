@@ -274,7 +274,8 @@ class IpaPayloadHandle {
         try FileManager.default.copyItem(at: URL.init(fileURLWithPath: newPPFPath), to: embeddedPPFPath)
         
         //从 ppf 中导出 entitlements 文件
-        let newEntitlements = URL(fileURLWithPath: "/tmp/new(\(newPPFModel.name)).entitlements")
+        let tmpDir = FileManager.default.temporaryDirectory;
+        let newEntitlements = tmpDir.appendingPathComponent("new(\(newPPFModel.name)).entitlements")
         let newEntitlementsDic = newPPFModel.entitlementsDictionay
         try PropertyListSerialization.data(fromPropertyList: newEntitlementsDic,
                                            format: PropertyListSerialization.PropertyListFormat.xml,

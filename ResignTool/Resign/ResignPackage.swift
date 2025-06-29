@@ -8,6 +8,8 @@
 import Foundation
 import Cocoa
 
+typealias PrintCallback = (String) -> Void
+
 class ResignPackage {
     // 目标 ipa 包路径
     var linkPath: String!
@@ -25,6 +27,8 @@ class ResignPackage {
     var injectResourcePath: String!;
     // ipa 导出路径，不传默认导出到 Download 目录下
     var exportedIpaPath: String?;
+    
+    var printCallback: PrintCallback?
     
     // ipa raw
     private var rawIpaPayloadHandler: IpaPayloadHandle? = nil;
@@ -44,14 +48,20 @@ class ResignPackage {
         self.bundleVersion = bundleVersion;
     }
     
+    func log(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+        print(items, separator: separator, terminator: terminator)
+        let output = items.map { "\($0)" }.joined(separator: separator)
+        printCallback?(output)
+    }
+    
     func run(result: @escaping (_ result: Bool) -> Void) {
         if (self.linkPath.isEmpty) {
-            print("linkPath 必传")
+            log("linkPath required")
             result(false);
             return;
         }
         if (self.provisionFilePath.isEmpty) {
-            print("provisionFilePath 必传")
+            log("provisionFilePath required")
             result(false);
             return;
         }
@@ -75,18 +85,18 @@ class ResignPackage {
         
         // 第三步 解析重签描述文件
         guard let ppfModel = PPFModel.init(mobileprovisionFilePath: self.provisionFilePath) else {
-            print("【error】描述文件解析失败");
+            log("【error】mobileprovision parse failure");
             result(false)
             return
         }
         let cerNames = ppfModel.mdCertificates.map{ $0.commonName }
         if cerNames.count <= 0 {
-            print("【error】描述文件无效: 未包含任何关联证书");
+            log("【error】Mobileprovision File invalid: No associated certificates are included");
             result(false)
             return
         }
         self.signIdentity = cerNames[0];
-        print("signIdentity: \(self.signIdentity)")
+        log("signIdentity: \(self.signIdentity)")
         
         // 第四步，重签
         result(self.resign())
@@ -94,9 +104,10 @@ class ResignPackage {
     
     func resign() -> Bool {
         do {
-            print("准备导出 Payload 副本...");
+            log("Prepare to export the copy of the Payload...");
             let fm = FileManager.default
-            let copyDir = URL(fileURLWithPath: "/tmp").appendingPathComponent( "SResignerCopy\(Date().stringWithFormat("yyyyMMddHHmmss"))")
+            let tmpDir = fm.temporaryDirectory; // or URL(fileURLWithPath: "/tmp")
+            let copyDir = tmpDir.appendingPathComponent( "SResignerCopy\(Date().stringWithFormat("yyyyMMddHHmmss"))")
             let copyPayload = copyDir.appendingPathComponent("Payload")
             try! fm.copyItem(at: self.rawIpaPayloadHandler!.payload, to: copyPayload, shouldOverwrite: true, withIntermediateDirectories: true)
             
@@ -104,51 +115,51 @@ class ResignPackage {
 
             let toInjectLinkItems: [DylibLinkItem] = self.dylibLinks.filter{$0.type == .userInject}
             if (toInjectLinkItems.count > 0) {
-                print("新增 \(toInjectLinkItems.count) 个库，开始注入");
+                log("add \(toInjectLinkItems.count) framework, inject begin...");
                 for linkItem in toInjectLinkItems {
-                    print("Inject \(linkItem.link)");
+                    log("Inject \(linkItem.link)");
                     try copyPayloadHanlder.injectDylib(dylibFilePath: linkItem.injectResourcePath!, link: linkItem.link)
                 }
             }
             
             if((self.version) != nil) {
-                print("更新 version " + self.version!);
+                log("update version " + self.version!);
                 copyPayloadHanlder.mainBundle.updateShortVersion(self.version!);
             }
             if ((self.appName) != nil) {
-                print("更新 appName " + self.appName!);
+                log("update appName " + self.appName!);
                 copyPayloadHanlder.mainBundle.updateDisplayName(self.appName!);
             }
             if ((self.bundleID) != nil) {
-                print("更新 buildid " + self.bundleID!);
+                log("update buildid " + self.bundleID!);
                 copyPayloadHanlder.mainBundle.updateBundleID(self.bundleID!);
             }
             if ((self.bundleVersion) != nil) {
-                print("更新 bundleVersion " + self.bundleVersion!);
+                log("update bundleVersion " + self.bundleVersion!);
                 copyPayloadHanlder.mainBundle.updateBundleVersion(self.bundleVersion!);
             }
 
-            print("Remove nested app...")
+            log("Remove nested app...")
             let allNestedBundles = copyPayloadHanlder.currentNestedAppBundles()
             let remainNestedBundleIDs: [String] = []
             for bundle in allNestedBundles {
                 if !remainNestedBundleIDs.contains(bundle.bundleIdentifier!) {
-                    print("Remove nested app at path: \(bundle.bundlePath)")
+                    log("Remove nested app at path: \(bundle.bundlePath)")
                     try fm.removeItem(atPath: bundle.bundlePath)
                 }
             }
             let watchDir = copyPayloadHanlder.mainBundle.bundlePath + "/Watch";
             let watchPlaceholder = copyPayloadHanlder.mainBundle.bundlePath + "/com.apple.WatchPlaceholder";
             if FileManager.default.fileExists(atPath: watchDir) {
-                print("remove Watch...")
+                log("remove Watch...")
                 try! FileManager.default.removeItem(atPath: watchDir)
             }
             if FileManager.default.fileExists(atPath: watchPlaceholder) {
-                print("remove WatchPlaceholder...")
+                log("remove WatchPlaceholder...")
                 try! FileManager.default.removeItem(atPath: watchPlaceholder)
             }
 
-            print("开始重签...");
+            log("re-sign begin...");
             
             let extraResignResources: (singleFiles: [String], frameworks: [String]) = {
                 var singleFiles: [String] = []
@@ -214,22 +225,26 @@ class ResignPackage {
                 print("Sign " + onSignFile);
             })
             let enddate = Date()
-            print("resign 用时: \(enddate.timeIntervalSince(sdate)) 秒")
-            print("开始生成 ipa 文件...")
+            log("resign duration: \(String(format: "%.2f", enddate.timeIntervalSince(sdate))) s")
+            log("begin create ipa file...")
             var exportedIpa:URL;
             if (self.exportedIpaPath == nil) {
                 let exportIpaName: String = "\(newDisplayName)_resigned\(Date().stringWithFormat("yyyyMMddHHmmss")).ipa"
-                exportedIpa = URL(fileURLWithPath: NSHomeDirectory()+"/Downloads").appendingPathComponent(exportIpaName)
+                if let downloadsDir = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first {
+                    exportedIpa = downloadsDir.appendingPathComponent(exportIpaName)
+                } else {
+                    exportedIpa = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(exportIpaName)
+                }
             } else {
                 exportedIpa = URL(fileURLWithPath: self.exportedIpaPath!);
             }
             
             try fm.removeItemIfExists(at: exportedIpa)
             // 压缩回 ipa
-            print("Zip to ipa: \(exportedIpa)...")
+            log("Zip to ipa: \(exportedIpa)")
 
             try ShellCmds.zip(filePath: copyPayloadHanlder.payload.path, toDestination: exportedIpa.path)
-            print("Clean...")
+            log("Clean...")
             
             // 清理
             do {
@@ -240,21 +255,13 @@ class ResignPackage {
                     throw error
                 }
             }
-            print("完成！")
-            // 用访达打开导出的 ipa 文件，注释掉的部分。
-            // TODO: 界面上添加按钮在 访达 中查看
-//            allExportIpaPath.append(exportedIpa)
-//            if allExportIpaPath.count > 1{
-//                // open
-//                try ShellCmds.open(directory: allExportIpaPath[0].deletingLastPathComponent().path, shouldSelect: true)
-//            } else {
-//                // open
-//                try ShellCmds.open(directory: allExportIpaPath[0].path, shouldSelect: true)
-//            }
+            log("re-sign successful！")
+            // 用访达打开导出的 ipa 文件
+            try ShellCmds.open(directory: exportedIpa.path, shouldSelect: true)
             return true;
 
         } catch {
-            print("【error】重签失败: \(error)");
+            log("【error】re-sign failure: \(error)");
             return false;
         }
     }
@@ -277,8 +284,9 @@ class ResignPackage {
     
     // 解压ipa，获取 IpaPayloadHandle 对象，返回是否成功
     func ipaFileunzip(_ ipaPath: String) -> Bool {
-        print("开始解压 handle ipa: \(ipaPath)");
-        let upZipDir = URL(fileURLWithPath: "/tmp").appendingPathComponent( "SResignerUnzip\(Date().stringWithFormat("yyyyMMddHHmmss"))")
+        log("unzip handle ipa begin: \(ipaPath)");
+        let tmpDir = FileManager.default.temporaryDirectory // or system /tmp;
+        let upZipDir = tmpDir.appendingPathComponent( "SResignerUnzip\(Date().stringWithFormat("yyyyMMddHHmmss"))")
         try! ShellCmds.unzip(filePath: ipaPath, toDirectory: upZipDir.path)
 
         // 获取解压后的Payload
@@ -291,7 +299,7 @@ class ResignPackage {
         }()
 
         guard let payloadPath = searchPayloadPath else {
-            print("【error】ipa 解压目录里找不到 ”Payload“ 目录")
+            log("【error】ipa directory not found ”Payload“")
             return false;
         }
         
@@ -299,7 +307,7 @@ class ResignPackage {
         do {
             hender = try IpaPayloadHandle.init(payload: URL(fileURLWithPath: payloadPath))
         } catch {
-            print("【error】ipa 文件解析失败：\(error)");
+            log("【error】ipa file parse failure：\(error)");
             return false;
         }
         

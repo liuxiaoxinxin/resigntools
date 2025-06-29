@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A33800A2E08365A00779BF9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1A3380082E08365A00779BF9 /* Localizable.strings */; };
+		1A33800F2E083EB500779BF9 /* HUDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A33800E2E083EB500779BF9 /* HUDViewController.swift */; };
+		1A3380102E083EB500779BF9 /* HUDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A33800E2E083EB500779BF9 /* HUDViewController.swift */; };
 		1A64180C2DFE95330025A588 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A64180B2DFE95330025A588 /* AppDelegate.swift */; };
 		1A64180E2DFE95330025A588 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A64180D2DFE95330025A588 /* ViewController.swift */; };
 		1A6418102DFE95350025A588 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A64180F2DFE95350025A588 /* Assets.xcassets */; };
@@ -75,6 +78,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A3380092E08365A00779BF9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		1A33800B2E0836F400779BF9 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		1A33800C2E0836F400779BF9 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		1A33800E2E083EB500779BF9 /* HUDViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDViewController.swift; sourceTree = "<group>"; };
 		1A6418082DFE95330025A588 /* ResignTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ResignTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A64180B2DFE95330025A588 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1A64180D2DFE95330025A588 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -136,6 +143,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A33800D2E083DD600779BF9 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1A33800E2E083EB500779BF9 /* HUDViewController.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		1A6417FF2DFE95330025A588 = {
 			isa = PBXGroup;
 			children = (
@@ -163,10 +178,12 @@
 			children = (
 				1A64180B2DFE95330025A588 /* AppDelegate.swift */,
 				1A64180D2DFE95330025A588 /* ViewController.swift */,
+				1A33800D2E083DD600779BF9 /* Views */,
 				1AF09A972DFFB6E40089BF9D /* Resign */,
 				1A64180F2DFE95350025A588 /* Assets.xcassets */,
 				1A6418112DFE95360025A588 /* Main.storyboard */,
 				1A6418142DFE95360025A588 /* ResignTool.entitlements */,
+				1A3380082E08365A00779BF9 /* Localizable.strings */,
 			);
 			path = ResignTool;
 			sourceTree = "<group>";
@@ -339,6 +356,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 1A6417FF2DFE95330025A588;
 			productRefGroup = 1A6418092DFE95330025A588 /* Products */;
@@ -359,6 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A6418102DFE95350025A588 /* Assets.xcassets in Resources */,
+				1A33800A2E08365A00779BF9 /* Localizable.strings in Resources */,
 				1A6418132DFE95360025A588 /* Base in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -395,6 +414,7 @@
 				1AC809582E02FF8C00836653 /* ResignPackage.swift in Sources */,
 				1A64180C2DFE95330025A588 /* AppDelegate.swift in Sources */,
 				1AC809602E03020D00836653 /* ShellCmds.swift in Sources */,
+				1A33800F2E083EB500779BF9 /* HUDViewController.swift in Sources */,
 				1AC809722E03060400836653 /* Extensions.swift in Sources */,
 				1AC8095A2E02FFBB00836653 /* PayloadEditor.swift in Sources */,
 				1AC8095C2E02FFE800836653 /* EditableBundle.swift in Sources */,
@@ -426,6 +446,7 @@
 			files = (
 				1AC809732E03084C00836653 /* MachoHandle.swift in Sources */,
 				1AC8097A2E03085000836653 /* PPFModel.swift in Sources */,
+				1A3380102E083EB500779BF9 /* HUDViewController.swift in Sources */,
 				1AC8097B2E03085000836653 /* DylibLinkItem.swift in Sources */,
 				1AC8097C2E03085500836653 /* MDP12.swift in Sources */,
 				1AC8097D2E03085500836653 /* MDUtil.swift in Sources */,
@@ -458,10 +479,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		1A3380082E08365A00779BF9 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1A3380092E08365A00779BF9 /* en */,
+				1A33800C2E0836F400779BF9 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		1A6418112DFE95360025A588 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				1A6418122DFE95360025A588 /* Base */,
+				1A33800B2E0836F400779BF9 /* zh-Hans */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -474,6 +505,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -537,6 +569,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

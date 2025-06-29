@@ -1,0 +1,27 @@
+/* 
+  Localizable.strings
+  ResignTool
+
+  Created by 刘吉新 on 2025/6/22.
+  
+*/
+
+"源 IPA 文件路径:" = "Source IPA Path:";
+"选择..." = "Browse...";
+"描述文件路径（.mobileprovision）" = "Provisioning Profile Path (.mobileprovision)";
+"注入 Framework (可选，将一个或多个 Framework 放在此目录下)" = "Inject Framework (Optional, place one or more frameworks in this directory)";
+"重置应用名称(可选)" = "Reset App Name (Optional)";
+"重置版本号(可选)" = "Reset Version Number (Optional)";
+"重置 Bundle ID(可选)" = "Reset Bundle ID (Optional)";
+"导出 IPA 路径(可选，默认导入到 /Downloads 目录)" = "Export IPA Path (Optional, defaults to /Downloads)";
+"开始重签" = "Start Resigning";
+"选择描述文件" = "Select Provisioning Profile";
+"选择要注入的 Framework 目录" = "Select Framework Directory to Inject";
+"选择导出 IPA 的目录" = "Select IPA Export Directory";
+"错误" = "Error";
+"请选择 IPA 文件路径" = "Please select IPA file path";
+"请选择描述文件路径" = "Please select provisioning profile path";
+"请选择要注入的 Framework 路径" = "Please select framework injection path";
+"确定" = "OK";
+"任务执行结束" = "Task execution completed";
+"请留意以上报错信息" = "Please pay attention to the above error message";
