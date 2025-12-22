@@ -320,7 +320,7 @@ class ViewController: NSViewController {
         startInjectionProcess(
             ipaPath: ipaPath,
             provisionFilePath: provisionFilePath,
-            resourcePaths: resourcePaths,
+            resourcePaths: framworks ?? "",
             appName: appName.isEmpty ? nil : appName,
             version: version.isEmpty ? nil : version,
             bundleID: bundleID.isEmpty ? nil : bundleID,
