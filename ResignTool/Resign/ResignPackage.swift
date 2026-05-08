@@ -285,10 +285,33 @@ class ResignPackage {
     // 解压ipa，获取 IpaPayloadHandle 对象，返回是否成功
     func ipaFileunzip(_ ipaPath: String) -> Bool {
         log("unzip handle ipa begin: \(ipaPath)");
-        let tmpDir = FileManager.default.temporaryDirectory // or system /tmp;
+        let fm = FileManager.default
+        let tmpDir = fm.temporaryDirectory // or system /tmp;
         let upZipDir = tmpDir.appendingPathComponent( "SResignerUnzip\(Date().stringWithFormat("yyyyMMddHHmmss"))")
-        try! ShellCmds.unzip(filePath: ipaPath, toDirectory: upZipDir.path)
-
+        // 沙盒子进程无法访问 user-selected 路径，先用 Data(contentsOf:)（主进程）读取后写入临时目录，再解压
+        // 使用 UUID 文件名避免中文路径引发编码问题
+        let tmpIpa = tmpDir.appendingPathComponent(UUID().uuidString + ".ipa")
+        do {
+            try? fm.removeItem(at: tmpIpa)
+            let ipaData = try Data(contentsOf: URL(fileURLWithPath: ipaPath))
+            log("IPA source size: \(ipaData.count) bytes")
+            guard ipaData.count > 0 else {
+                log("【error】IPA file is empty or unreadable (sandbox permission issue, try rebuilding the app): \(ipaPath)")
+                return false
+            }
+            try ipaData.write(to: tmpIpa)
+            do {
+                try ShellCmds.unzip(filePath: tmpIpa.path, toDirectory: upZipDir.path)
+            } catch {
+                // 部分 IPA（如 ipadump 来源）某些条目解压失败，但 Payload 主体已提取
+                // 此处降级为警告，由后续 Payload 目录检查决定是否真正失败
+                log("⚠️ unzip warning (may be partial): \(error)")
+            }
+            try? fm.removeItem(at: tmpIpa)
+        } catch {
+            log("【error】IPA read/write failure：\(error)")
+            return false
+        }
         // 获取解压后的Payload
         let searchPayloadPath = { () -> String? in
             let opt = FileSearcher.SearchOption()

@@ -50,7 +50,7 @@ class ShellCmds {
     
     static func unzip(filePath: String, toDirectory: String) throws {
         try FileManager.default.createDirectory(atPath: toDirectory, withIntermediateDirectories: true, attributes: nil)
-        let ret = ProcessHelper.synRun("/usr/bin/unzip", ["-qo", filePath, "-d", toDirectory])
+        let ret = ProcessHelper.synRun("/usr/bin/bsdtar", ["-xf", filePath, "-C", toDirectory])
         if !ret.isSuccess {
             let msg = ret.stdError.isEmpty ? ret.stdOutput : ret.stdError
             throw NSError.init(domain: "0", code: 0, userInfo: [NSLocalizedDescriptionKey : msg])
